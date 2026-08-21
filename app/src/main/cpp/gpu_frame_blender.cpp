@@ -1,5 +1,6 @@
 #include <vulkan/vulkan.h>
 #include <android/log.h>
+#include <jni.h>
 
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "gpu-blender", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "gpu-blender", __VA_ARGS__)

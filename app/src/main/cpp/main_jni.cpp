@@ -1,4 +1,5 @@
 #include <android/log.h>
+#include <jni.h>
 
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "lsfg-mali", __VA_ARGS__)
 
