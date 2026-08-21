@@ -19,7 +19,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -27,46 +26,25 @@ jobs:
       - name: Install Android NDK
         run: sdkmanager "ndk;27.0.12077973"
 
-      - name: Find Android project
-        run: |
-          GRADLEW=$(find . -type f -name "gradlew" -print -quit)
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: gradlew was not found anywhere in the repository."
-            echo "Repository contents:"
-            find . -maxdepth 3 -type f | head -200
-            exit 1
-          fi
-
-          PROJECT_DIR=$(dirname "$GRADLEW")
-          PROJECT_DIR="${PROJECT_DIR#./}"
-
-          if [ "$PROJECT_DIR" = "." ]; then
-            PROJECT_DIR=""
-          fi
-
-          echo "Found Gradle project at: ${PROJECT_DIR:-repository root}"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-      - name: Make gradlew executable
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: chmod +x ./gradlew
-
-      - name: Build debug APK
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: ./gradlew :app:assembleDebug --no-daemon
+      - name: Build APK
+        run: gradle :app:assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: lsfg-mali-debug
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
+          files: app/build/outputs/apk/debug/app-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
